@@ -73,8 +73,7 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
 .heading-aside { max-width: 20rem; margin: 0 0 .45rem; color: var(--muted); line-height: 1.65; }
 .collection-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2.5vw, 2.8rem); }
 .product-image { position: relative; display: block; overflow: hidden; aspect-ratio: 3 / 3.7; background: var(--white); }
-.product-image img { height: 100%; object-fit: cover; transition: transform .5s ease; }
-.product-image:hover img { transform: scale(1.045); }
+.product-image img { height: 100%; object-fit: cover; }
 .product-image-heart img { object-position: 50% 54%; }
 .product-image-jabuticaba img { object-position: 50% 55%; }
 .product-image-spray img { object-position: 50% 55%; }
@@ -129,6 +128,25 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
 .footer-main p { max-width: 21rem; margin: 0; line-height: 1.7; }
 .back-top { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .footer-bottom { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,.25); font-size: .68rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .hero-image-wrap img,
+  .product-image img,
+  .feature-image img,
+  .kit-image img,
+  .universe-image img {
+    transition: transform .65s cubic-bezier(.2, .7, .2, 1);
+  }
+
+  .hero-image-wrap:hover img { transform: scale(1.045); }
+  .product-image:hover img,
+  .product-image:focus-visible img { transform: scale(1.07) rotate(-1deg); }
+  .product-card:nth-child(even) .product-image:hover img,
+  .product-card:nth-child(even) .product-image:focus-visible img { transform: scale(1.07) rotate(1deg); }
+  .feature-image:hover img,
+  .kit-image:hover img,
+  .universe-image:hover img { transform: scale(1.045) rotate(.5deg); }
+}
 
 @media (max-width: 1000px) {
   .site-header { grid-template-columns: 1fr auto; }
