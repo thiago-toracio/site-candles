@@ -130,14 +130,17 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
 .footer-bottom { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,.25); font-size: .68rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
 
 @media (hover: hover) and (pointer: fine) {
-  .hero-image-wrap:hover img { transform: scale(1.045); }
-  .product-image:hover img,
-  .product-image:focus-visible img { transform: scale(1.07) rotate(-1deg); }
-  .product-card:nth-child(even) .product-image:hover img,
-  .product-card:nth-child(even) .product-image:focus-visible img { transform: scale(1.07) rotate(1deg); }
+  .hero-image-wrap img,
+  .product-image img,
+  .feature-image img,
+  .kit-image img,
+  .universe-image img { transform-origin: 50% 50%; }
+
+  .hero-image-wrap:hover img { transform: scale(1.7); }
+  .product-image:hover img { transform: scale(2.05); }
   .feature-image:hover img,
   .kit-image:hover img,
-  .universe-image:hover img { transform: scale(1.045) rotate(.5deg); }
+  .universe-image:hover img { transform: scale(1.8); }
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
@@ -146,7 +149,7 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
   .feature-image img,
   .kit-image img,
   .universe-image img {
-    transition: transform .65s cubic-bezier(.2, .7, .2, 1);
+    transition: transform .18s ease-out;
   }
 }
 

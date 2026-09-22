@@ -23,3 +23,20 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.querySelector('#year').textContent = new Date().getFullYear();
+
+const zoomSurfaces = document.querySelectorAll(
+  '.hero-image-wrap, .product-image, .feature-image, .kit-image, .universe-image'
+);
+
+zoomSurfaces.forEach((surface) => {
+  const photo = surface.querySelector('img');
+
+  surface.addEventListener('pointermove', (event) => {
+    if (event.pointerType !== 'mouse') return;
+
+    const bounds = surface.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100));
+    const y = Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100));
+    photo.style.transformOrigin = `${x}% ${y}%`;
+  });
+});
