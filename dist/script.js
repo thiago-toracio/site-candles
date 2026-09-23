@@ -43,14 +43,22 @@ zoomSurfaces.forEach((surface) => {
   }
 
   setZoom(false);
-  toggle.addEventListener('click', () => setZoom(!surface.classList.contains('is-zoomed')));
-  surface.addEventListener('pointerleave', () => setZoom(false));
+  toggle.addEventListener('click', (event) => {
+    event.stopPropagation();
+    setZoom(!surface.classList.contains('is-zoomed'));
+  });
+  surface.addEventListener('pointerleave', (event) => {
+    if (event.pointerType === 'mouse') setZoom(false);
+  });
   surface.addEventListener('focusout', (event) => {
     if (!surface.contains(event.relatedTarget)) setZoom(false);
   });
 
   surface.querySelector('.product-image')?.addEventListener('click', (event) => {
-    if (surface.classList.contains('is-zoomed')) event.preventDefault();
+    if (surface.classList.contains('is-zoomed')) {
+      event.preventDefault();
+      setZoom(false);
+    }
   });
 
   surface.addEventListener('pointermove', (event) => {
