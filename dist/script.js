@@ -63,36 +63,99 @@ zoomSurfaces.forEach((surface) => {
 
   setZoom(false);
 
-  // Pan suave com pointer capture — funciona em mouse e touch sem lag
-  let pointerMoved = false;
-
-  surface.addEventListener('pointerdown', (event) => {
-    if (!surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
-    surface.setPointerCapture(event.pointerId);
-    pointerMoved = false;
-  });
-
-  surface.addEventListener('pointermove', (event) => {
-    if (!surface.classList.contains('is-zoomed') || !surface.hasPointerCapture(event.pointerId)) return;
-    pointerMoved = true;
-    updateOrigin(event.clientX, event.clientY);
-  });
-
+  // Toggle do botao da lupa
   toggle.addEventListener('click', (event) => {
     event.stopPropagation();
     setZoom(!surface.classList.contains('is-zoomed'));
   });
 
-  // Tap na foto (sem arrastar) desabilita o zoom
-  // Se houve pan (pointerMoved), ignora o click para nao fechar apos arrasto
-  surface.addEventListener('click', (event) => {
-    if (event.target.closest('.zoom-toggle')) return;
-    if (pointerMoved) { pointerMoved = false; return; }
+  // ========================================================
+  // COMPORTAMENTO DESKTOP (Mouse)
+  // - Segue o cursor instantaneamente (apenas mover, sem segurar clique)
+  // - Ao mover o cursor para fora da foto, desativa o zoom imediatamente
+  // ========================================================
+  surface.addEventListener('pointermove', (event) => {
+    if (event.pointerType !== 'mouse') return;
+    if (!surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
+    updateOrigin(event.clientX, event.clientY);
+  });
+
+  surface.addEventListener('pointerleave', (event) => {
+    if (event.pointerType !== 'mouse') return;
     if (surface.classList.contains('is-zoomed')) {
-      event.preventDefault();
-      event.stopPropagation();
       setZoom(false);
     }
+  });
+
+  // ========================================================
+  // COMPORTAMENTO MOBILE (Touch)
+  // - Arrastar dedo para navegar pelo pan com tracking estavel
+  // - Tirar o dedo NÃO fecha o zoom (permanece ampliado)
+  // - Tap simples ou toque fora da foto fecha o zoom
+  // ========================================================
+  let isTouching = false;
+  let touchMoved = false;
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  surface.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse') return;
+    if (!surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
+    isTouching = true;
+    touchMoved = false;
+    touchStartX = event.clientX;
+    touchStartY = event.clientY;
+    try {
+      surface.setPointerCapture(event.pointerId);
+    } catch (_) {}
+  });
+
+  surface.addEventListener('pointermove', (event) => {
+    if (event.pointerType === 'mouse') return;
+    if (!surface.classList.contains('is-zoomed') || !isTouching) return;
+    if (Math.hypot(event.clientX - touchStartX, event.clientY - touchStartY) > 5) {
+      touchMoved = true;
+    }
+    updateOrigin(event.clientX, event.clientY);
+  });
+
+  surface.addEventListener('pointerup', (event) => {
+    if (event.pointerType === 'mouse') return;
+    isTouching = false;
+    try {
+      if (surface.hasPointerCapture(event.pointerId)) {
+        surface.releasePointerCapture(event.pointerId);
+      }
+    } catch (_) {}
+  });
+
+  surface.addEventListener('pointercancel', (event) => {
+    if (event.pointerType === 'mouse') return;
+    isTouching = false;
+    try {
+      if (surface.hasPointerCapture(event.pointerId)) {
+        surface.releasePointerCapture(event.pointerId);
+      }
+    } catch (_) {}
+  });
+
+  // ========================================================
+  // CLIQUE / TAP NA FOTO
+  // ========================================================
+  surface.addEventListener('click', (event) => {
+    if (event.target.closest('.zoom-toggle')) return;
+    if (!surface.classList.contains('is-zoomed')) return;
+
+    // No touch: se foi arrasto de navegacao (pan), ignora para nao fechar
+    if (touchMoved) {
+      touchMoved = false;
+      return;
+    }
+
+    // Clique limpo (desktop ou tap simples mobile) fecha o zoom
+    event.preventDefault();
+    event.stopPropagation();
+    setZoom(false);
   });
 
   surface.addEventListener('focusout', (event) => {
