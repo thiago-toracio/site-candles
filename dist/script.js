@@ -24,15 +24,37 @@ document.addEventListener('keydown', (event) => {
 
 document.querySelector('#year').textContent = new Date().getFullYear();
 
-const zoomSurfaces = document.querySelectorAll(
-  '.hero-image-wrap, .product-image, .feature-image, .kit-image, .universe-image'
-);
+const zoomSurfaces = document.querySelectorAll('.zoom-surface');
 
 zoomSurfaces.forEach((surface) => {
   const photo = surface.querySelector('img');
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'zoom-toggle';
+  toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10" cy="10" r="6"/><path d="m14.5 14.5 6 6M7 10h6"/><path class="zoom-plus" d="M10 7v6"/></svg>';
+  surface.append(toggle);
+
+  function setZoom(active) {
+    surface.classList.toggle('is-zoomed', active);
+    toggle.setAttribute('aria-pressed', String(active));
+    toggle.setAttribute('aria-label', `${active ? 'Desativar' : 'Ativar'} lupa: ${photo.alt}`);
+    toggle.title = active ? 'Desativar lupa' : 'Ampliar foto';
+    if (active) photo.style.transformOrigin = '50% 50%';
+  }
+
+  setZoom(false);
+  toggle.addEventListener('click', () => setZoom(!surface.classList.contains('is-zoomed')));
+  surface.addEventListener('pointerleave', () => setZoom(false));
+  surface.addEventListener('focusout', (event) => {
+    if (!surface.contains(event.relatedTarget)) setZoom(false);
+  });
+
+  surface.querySelector('.product-image')?.addEventListener('click', (event) => {
+    if (surface.classList.contains('is-zoomed')) event.preventDefault();
+  });
 
   surface.addEventListener('pointermove', (event) => {
-    if (event.pointerType !== 'mouse') return;
+    if (event.pointerType !== 'mouse' || !surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
 
     const bounds = surface.getBoundingClientRect();
     const x = Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100));

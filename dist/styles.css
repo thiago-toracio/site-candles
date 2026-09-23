@@ -72,6 +72,7 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
 .section-heading h2 em { color: var(--rose); }
 .heading-aside { max-width: 20rem; margin: 0 0 .45rem; color: var(--muted); line-height: 1.65; }
 .collection-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2.5vw, 2.8rem); }
+.product-media { position: relative; }
 .product-image { position: relative; display: block; overflow: hidden; aspect-ratio: 3 / 3.7; background: var(--white); }
 .product-image img { height: 100%; object-fit: cover; }
 .product-image-heart img { object-position: 50% 54%; }
@@ -84,7 +85,7 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
 .product-card p { color: var(--muted); font-size: .92rem; }
 
 .feature { display: grid; grid-template-columns: 1fr 1fr; min-height: 39rem; }
-.feature-image { min-height: 39rem; overflow: hidden; background: var(--paper); }
+.feature-image { position: relative; min-height: 39rem; overflow: hidden; background: var(--paper); }
 .feature-image img { height: 100%; object-fit: cover; }
 .feature-image-heart img { object-position: 50% 50%; }
 .feature-image-jabuticaba img { object-position: 50% 50%; }
@@ -104,7 +105,7 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
 .quote-small { font-size: .67rem; font-weight: 700; letter-spacing: .22em; }
 
 .kit-section { display: grid; grid-template-columns: 1fr 1fr; background: var(--wine); color: var(--cream); }
-.kit-image { min-height: 44rem; background: var(--white); }
+.kit-image { position: relative; min-height: 44rem; overflow: hidden; background: var(--white); }
 .kit-image img { height: 100%; object-fit: cover; object-position: 50% 50%; }
 .kit-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 5rem clamp(2rem, 7vw, 8rem); }
 .kit-copy h2 { max-width: 11ch; margin-bottom: 2rem; }
@@ -119,7 +120,7 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
 .universe-content h2 { max-width: 10ch; }
 .universe-content h2 em { color: var(--rose); }
 .universe-content p { max-width: 31rem; color: var(--muted); font-size: 1.05rem; line-height: 1.75; }
-.universe-image { align-self: end; aspect-ratio: 4 / 5; overflow: hidden; }
+.universe-image { position: relative; align-self: end; aspect-ratio: 4 / 5; overflow: hidden; }
 .universe-image img { height: 100%; object-fit: cover; }
 
 .site-footer { padding: 4.5rem clamp(1.25rem, 4.5vw, 5rem) 1.4rem; background: var(--wine-deep); color: var(--cream); }
@@ -129,18 +130,31 @@ h2 { font-size: clamp(3.1rem, 5.4vw, 6.2rem); }
 .back-top { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .footer-bottom { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,.25); font-size: .68rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
 
+.zoom-toggle { display: none; }
+
 @media (hover: hover) and (pointer: fine) {
+  .zoom-toggle {
+    position: absolute; z-index: 2; top: 1rem; right: 1rem;
+    display: grid; place-items: center; width: 2.75rem; height: 2.75rem;
+    padding: .7rem; border: 1px solid var(--line); border-radius: 50%;
+    background: var(--cream); color: var(--wine); cursor: pointer;
+  }
+  .zoom-toggle:hover, .zoom-toggle[aria-pressed="true"] { background: var(--wine); border-color: var(--wine); color: var(--cream); }
+  .zoom-toggle svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+  .zoom-toggle[aria-pressed="true"] .zoom-plus { display: none; }
+
   .hero-image-wrap img,
   .product-image img,
   .feature-image img,
   .kit-image img,
   .universe-image img { transform-origin: 50% 50%; }
 
-  .hero-image-wrap:hover img { transform: scale(1.7); }
-  .product-image:hover img { transform: scale(2.05); }
-  .feature-image:hover img,
-  .kit-image:hover img,
-  .universe-image:hover img { transform: scale(1.8); }
+  .zoom-surface.is-zoomed, .zoom-surface.is-zoomed .product-image { cursor: zoom-in; }
+  .hero-image-wrap.is-zoomed img { transform: scale(1.7); }
+  .product-media.is-zoomed img { transform: scale(2.05); }
+  .feature-image.is-zoomed img,
+  .kit-image.is-zoomed img,
+  .universe-image.is-zoomed img { transform: scale(1.8); }
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
