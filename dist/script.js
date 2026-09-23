@@ -63,14 +63,31 @@ zoomSurfaces.forEach((surface) => {
 
   setZoom(false);
 
+  // Pan suave com pointer capture — funciona em mouse e touch sem lag
+  let pointerMoved = false;
+
+  surface.addEventListener('pointerdown', (event) => {
+    if (!surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
+    surface.setPointerCapture(event.pointerId);
+    pointerMoved = false;
+  });
+
+  surface.addEventListener('pointermove', (event) => {
+    if (!surface.classList.contains('is-zoomed') || !surface.hasPointerCapture(event.pointerId)) return;
+    pointerMoved = true;
+    updateOrigin(event.clientX, event.clientY);
+  });
+
   toggle.addEventListener('click', (event) => {
     event.stopPropagation();
     setZoom(!surface.classList.contains('is-zoomed'));
   });
 
-  // Clicar ou fazer touch na foto desabilita
+  // Tap na foto (sem arrastar) desabilita o zoom
+  // Se houve pan (pointerMoved), ignora o click para nao fechar apos arrasto
   surface.addEventListener('click', (event) => {
     if (event.target.closest('.zoom-toggle')) return;
+    if (pointerMoved) { pointerMoved = false; return; }
     if (surface.classList.contains('is-zoomed')) {
       event.preventDefault();
       event.stopPropagation();
@@ -78,50 +95,14 @@ zoomSurfaces.forEach((surface) => {
     }
   });
 
-  // Navegacao por toque ou mouse
-  surface.addEventListener('pointerdown', (event) => {
-    if (!surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
-    updateOrigin(event.clientX, event.clientY);
-  });
-
-  surface.addEventListener('pointermove', (event) => {
-    if (!surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
-
-    // Se mover ou rolar para fora dos limites da foto, desabilita
-    const bounds = surface.getBoundingClientRect();
-    if (
-      event.clientX < bounds.left ||
-      event.clientX > bounds.right ||
-      event.clientY < bounds.top ||
-      event.clientY > bounds.bottom
-    ) {
-      setZoom(false);
-      return;
-    }
-
-    updateOrigin(event.clientX, event.clientY);
-  });
-
-  // Sair dos limites da foto desabilita
-  surface.addEventListener('pointerleave', () => {
-    if (surface.classList.contains('is-zoomed')) setZoom(false);
-  });
-
   surface.addEventListener('focusout', (event) => {
     if (!surface.contains(event.relatedTarget)) setZoom(false);
   });
 
-  // Clicar ou tocar fora da foto desabilita
+  // Toque ou clique fora da foto desabilita
   document.addEventListener('pointerdown', (event) => {
     if (!surface.contains(event.target) && surface.classList.contains('is-zoomed')) {
       setZoom(false);
     }
   });
-
-  // Rolar a pagina desabilita
-  window.addEventListener('scroll', () => {
-    if (surface.classList.contains('is-zoomed')) {
-      setZoom(false);
-    }
-  }, { passive: true });
 });
