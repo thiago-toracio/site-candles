@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.join(__dirname, 'dist');
-const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.jpeg': 'image/jpeg' };
+const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
 
 http.createServer((request, response) => {
   const requested = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
