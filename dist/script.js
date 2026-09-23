@@ -35,6 +35,18 @@ zoomSurfaces.forEach((surface) => {
   surface.append(toggle);
 
   function setZoom(active) {
+    if (active) {
+      zoomSurfaces.forEach((other) => {
+        if (other !== surface && other.classList.contains('is-zoomed')) {
+          other.classList.remove('is-zoomed');
+          const otherToggle = other.querySelector('.zoom-toggle');
+          if (otherToggle) {
+            otherToggle.setAttribute('aria-pressed', 'false');
+            otherToggle.title = 'Ampliar foto';
+          }
+        }
+      });
+    }
     surface.classList.toggle('is-zoomed', active);
     toggle.setAttribute('aria-pressed', String(active));
     toggle.setAttribute('aria-label', `${active ? 'Desativar' : 'Ativar'} lupa: ${photo.alt}`);
@@ -49,53 +61,67 @@ zoomSurfaces.forEach((surface) => {
     photo.style.transformOrigin = `${x}% ${y}%`;
   }
 
-  let isDragging = false;
-  let startX = 0, startY = 0;
-
   setZoom(false);
+
   toggle.addEventListener('click', (event) => {
     event.stopPropagation();
     setZoom(!surface.classList.contains('is-zoomed'));
   });
 
+  // Clicar ou fazer touch na foto desabilita
+  surface.addEventListener('click', (event) => {
+    if (event.target.closest('.zoom-toggle')) return;
+    if (surface.classList.contains('is-zoomed')) {
+      event.preventDefault();
+      event.stopPropagation();
+      setZoom(false);
+    }
+  });
+
+  // Navegacao por toque ou mouse
   surface.addEventListener('pointerdown', (event) => {
     if (!surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
-    isDragging = false;
-    startX = event.clientX;
-    startY = event.clientY;
     updateOrigin(event.clientX, event.clientY);
-    if (event.pointerType !== 'mouse') {
-      try { surface.setPointerCapture(event.pointerId); } catch (_) {}
-    }
   });
 
   surface.addEventListener('pointermove', (event) => {
     if (!surface.classList.contains('is-zoomed') || event.target.closest('.zoom-toggle')) return;
-    if (Math.hypot(event.clientX - startX, event.clientY - startY) > 6) {
-      isDragging = true;
+
+    // Se mover ou rolar para fora dos limites da foto, desabilita
+    const bounds = surface.getBoundingClientRect();
+    if (
+      event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom
+    ) {
+      setZoom(false);
+      return;
     }
+
     updateOrigin(event.clientX, event.clientY);
   });
 
-  surface.addEventListener('pointerup', (event) => {
-    if (event.pointerType !== 'mouse') {
-      try { surface.releasePointerCapture(event.pointerId); } catch (_) {}
-    }
+  // Sair dos limites da foto desabilita
+  surface.addEventListener('pointerleave', () => {
+    if (surface.classList.contains('is-zoomed')) setZoom(false);
   });
 
-  surface.addEventListener('pointerleave', (event) => {
-    if (event.pointerType === 'mouse') setZoom(false);
-  });
   surface.addEventListener('focusout', (event) => {
     if (!surface.contains(event.relatedTarget)) setZoom(false);
   });
 
-  surface.querySelector('.product-image')?.addEventListener('click', (event) => {
-    if (surface.classList.contains('is-zoomed')) {
-      event.preventDefault();
-      if (!isDragging) {
-        setZoom(false);
-      }
+  // Clicar ou tocar fora da foto desabilita
+  document.addEventListener('pointerdown', (event) => {
+    if (!surface.contains(event.target) && surface.classList.contains('is-zoomed')) {
+      setZoom(false);
     }
   });
+
+  // Rolar a pagina desabilita
+  window.addEventListener('scroll', () => {
+    if (surface.classList.contains('is-zoomed')) {
+      setZoom(false);
+    }
+  }, { passive: true });
 });
